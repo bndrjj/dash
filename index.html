@@ -181,6 +181,12 @@
             font-size: 0.95rem;
         }
 
+        .stat-subtext {
+            color: var(--muted);
+            font-size: 0.8rem;
+            margin-top: 6px;
+        }
+
         .section {
             margin-top: 32px;
         }
@@ -506,7 +512,35 @@
             }, { total: 0, male: 0, female: 0 });
         };
 
-        const computeAggregates = (rows, columns, selectedSector, baseData, supervisorRows, supervisorColumns) => {
+        const computeSchoolSupportSummary = (rows, columns, selectedSector) => {
+            if (!rows.length || !columns.sector || !columns.total) {
+                return null;
+            }
+
+            const filteredRows = rows.filter(row => {
+                const sectorValue = normalizeText(row[columns.sector]);
+                if (!sectorValue || sectorValue === '0') {
+                    return false;
+                }
+                if (selectedSector === 'الكل') {
+                    return true;
+                }
+                return sectorValue === normalizeText(selectedSector);
+            });
+
+            if (!filteredRows.length) {
+                return null;
+            }
+
+            return filteredRows.reduce((acc, row) => {
+                acc.total += parseNumber(row[columns.total]);
+                acc.male += parseNumber(row[columns.male]);
+                acc.female += parseNumber(row[columns.female]);
+                return acc;
+            }, { total: 0, male: 0, female: 0 });
+        };
+
+        const computeAggregates = (rows, columns, selectedSector, baseData, supervisorRows, supervisorColumns, schoolSupportColumns) => {
             const filteredRows = selectedSector === 'الكل'
                 ? rows
                 : rows.filter(row => normalizeText(row[columns.sector]) === normalizeText(selectedSector));
@@ -624,14 +658,17 @@
             const uniqueSchools = collectUnique([columns.assignedSchool, columns.additionalSchool]);
             const uniqueSupervisors = collectUnique([columns.supervisors]);
             const supervisorSummary = computeSupervisorSummary(supervisorRows, supervisorColumns, selectedSector);
+            const schoolSupportSummary = computeSchoolSupportSummary(supervisorRows, schoolSupportColumns, selectedSector);
 
             const summary = {
                 totalReports: filteredRows.length,
-                totalSchools: uniqueSchools.size,
+                totalSchools: schoolSupportSummary ? schoolSupportSummary.total : uniqueSchools.size,
                 totalSupervisors: supervisorSummary ? supervisorSummary.total : uniqueSupervisors.size,
                 sectorCount: Array.from(new Set(filteredRows.map(row => normalizeText(row[columns.sector])).filter(Boolean))).length,
                 maleSupervisors: supervisorSummary ? supervisorSummary.male : (genderCounts.get('بنين') || 0),
-                femaleSupervisors: supervisorSummary ? supervisorSummary.female : (genderCounts.get('بنات') || 0)
+                femaleSupervisors: supervisorSummary ? supervisorSummary.female : (genderCounts.get('بنات') || 0),
+                maleSupportedSchools: schoolSupportSummary ? schoolSupportSummary.male : 0,
+                femaleSupportedSchools: schoolSupportSummary ? schoolSupportSummary.female : 0
             };
 
             return {
@@ -699,10 +736,25 @@
                     male: 'عدد المشرفين بنين بالقطاع',
                     female: 'عدد المشرفين بنات بالقطاع'
                 });
+                const schoolSupportColumns = resolveColumnKeys(supervisorHeaders, {
+                    sector: 'القطاع-عدد',
+                    total: 'مجموع-بنين-بنات-عدد-شامل',
+                    male: resolveColumnKey(supervisorHeaders, 'مجموع بنين-عدد')
+                        || resolveColumnKey(supervisorHeaders, 'مجموع بنبن-عدد'),
+                    female: 'مجموع بنات-عدد'
+                });
                 const selectedSector = baseData.filters?.selectedSector || 'الكل';
-                const dashboardData = computeAggregates(rows, columns, selectedSector, baseData, supervisorRows, supervisorColumns);
+                const dashboardData = computeAggregates(
+                    rows,
+                    columns,
+                    selectedSector,
+                    baseData,
+                    supervisorRows,
+                    supervisorColumns,
+                    schoolSupportColumns
+                );
 
-                renderDashboard(dashboardData, rows, columns, baseData, supervisorRows, supervisorColumns);
+                renderDashboard(dashboardData, rows, columns, baseData, supervisorRows, supervisorColumns, schoolSupportColumns);
             } catch (error) {
                 document.getElementById('app').innerHTML = `
                     <div class="card" style="text-align:center;">
@@ -713,7 +765,7 @@
             }
         }
 
-        function renderDashboard(data, rows, columns, baseData, supervisorRows, supervisorColumns) {
+        function renderDashboard(data, rows, columns, baseData, supervisorRows, supervisorColumns, schoolSupportColumns) {
             const app = document.getElementById('app');
             const summary = data.summary;
 
@@ -767,7 +819,8 @@
                     </div>
                     <div class="stat-card">
                         <h3>${formatNumber(summary.totalSchools)}</h3>
-                        <p>عدد المدارس المشمولة بالخدمة</p>
+                        <p>المدارس التي يقدم لها الدعم</p>
+                        <div class="stat-subtext">عدد المدارس بنين - ${formatNumber(summary.maleSupportedSchools)} ، عدد المدارس بنات - ${formatNumber(summary.femaleSupportedSchools)}</div>
                     </div>
                     <div class="stat-card">
                         <h3>${formatNumber(summary.sectorCount)}</h3>
@@ -1006,8 +1059,16 @@
             if (sectorSelect) {
                 sectorSelect.addEventListener('change', (event) => {
                     const nextSector = event.target.value;
-                    const updatedData = computeAggregates(rows, columns, nextSector, baseData, supervisorRows, supervisorColumns);
-                    renderDashboard(updatedData, rows, columns, baseData, supervisorRows, supervisorColumns);
+                    const updatedData = computeAggregates(
+                        rows,
+                        columns,
+                        nextSector,
+                        baseData,
+                        supervisorRows,
+                        supervisorColumns,
+                        schoolSupportColumns
+                    );
+                    renderDashboard(updatedData, rows, columns, baseData, supervisorRows, supervisorColumns, schoolSupportColumns);
                 });
             }
         }
