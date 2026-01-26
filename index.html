@@ -414,6 +414,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script>
         const normalizeDigits = (value) => String(value)
             .replace(/[٠-٩]/g, (digit) => '0123456789'['٠١٢٣٤٥٦٧٨٩'.indexOf(digit)])
@@ -441,14 +442,247 @@
             }).join('');
         };
 
+        const normalizeText = (value) => String(value || '')
+            .replace(/\u00a0/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+
+        const resolveColumnKey = (headers, target) => {
+            const normalizedTarget = normalizeText(target);
+            return headers.find(header => normalizeText(header) === normalizedTarget);
+        };
+
+        const resolveColumnKeys = (headers, targets) => {
+            const keys = {};
+            Object.entries(targets).forEach(([key, label]) => {
+                keys[key] = resolveColumnKey(headers, label);
+            });
+            return keys;
+        };
+
+        const COLUMN_LABELS = {
+            sector: 'ALLSVA',
+            serviceType: 'المهمة حسب خطة المشرف التربوي',
+            deliveryMode: 'نوع الخدمة9',
+            schoolType: 'جميع مدارس الخدمة',
+            gender: 'جميع النوع',
+            stage: 'جميع المراحل',
+            assignedSchool: 'جميع مدارس التكليف',
+            additionalSchool: 'جميع المدارس الإضافية',
+            supervisors: 'جميع المشرفين',
+            supportFields: 'حدد مجالات الدعم الرئيسة التي ساهم المشرف بها خلال اليوم الدراسي',
+            leadership: 'من وجهة نظرك ما مدى مشاركة مدير المدرسة واللجان المعنية في قيادة عمليات الدعم',
+            classificationScore: 'مجمع دعم المدير والمدرسة رقم',
+            complianceMadrasti: 'تفعّل المدرسة التعليم الالكتروني من خلال منصة مدرستي',
+            complianceUniform: 'يلتزم الطلاب بلبس الزي السعودي الرسمي',
+            complianceBehavior: 'تطبق المدرسة لائحة السلوك والمواظبة على الطلاب',
+            complianceSchedule: 'تتم المحافظة على أوقات الحصص الدراسية',
+            complianceAttendance: 'هل تم تثبيت الغياب بشكل منتظم خلال الاسبوع'
+        };
+
+        const computeAggregates = (rows, columns, selectedSector, baseData) => {
+            const filteredRows = selectedSector === 'الكل'
+                ? rows
+                : rows.filter(row => normalizeText(row[columns.sector]) === normalizeText(selectedSector));
+
+            const countBy = (key) => {
+                const counts = new Map();
+                filteredRows.forEach(row => {
+                    const value = normalizeText(row[key]);
+                    if (!value) {
+                        return;
+                    }
+                    counts.set(value, (counts.get(value) || 0) + 1);
+                });
+                return counts;
+            };
+
+            const collectUnique = (keys) => {
+                const unique = new Set();
+                filteredRows.forEach(row => {
+                    keys.forEach(key => {
+                        const value = normalizeText(row[key]);
+                        if (value) {
+                            unique.add(value);
+                        }
+                    });
+                });
+                return unique;
+            };
+
+            const serviceTypeCounts = countBy(columns.serviceType);
+            const deliveryModeCounts = countBy(columns.deliveryMode);
+            const schoolTypeCounts = countBy(columns.schoolType);
+            const genderCounts = countBy(columns.gender);
+
+            const stageCounts = new Map();
+            filteredRows.forEach(row => {
+                const rawStage = normalizeText(row[columns.stage]);
+                if (!rawStage) {
+                    return;
+                }
+                const stage = rawStage.includes(';') ? 'مجمع مدارس' : rawStage;
+                stageCounts.set(stage, (stageCounts.get(stage) || 0) + 1);
+            });
+
+            const complianceFields = [
+                { key: columns.complianceMadrasti, label: 'تفعيل منصة مدرستي' },
+                { key: columns.complianceUniform, label: 'التزام الطلاب بالزي الرسمي' },
+                { key: columns.complianceBehavior, label: 'تطبيق لائحة السلوك والمواظبة' },
+                { key: columns.complianceSchedule, label: 'المحافظة على أوقات الحصص' },
+                { key: columns.complianceAttendance, label: 'تثبيت الغياب في نظام نور' }
+            ];
+
+            const compliance = complianceFields.map(field => {
+                let yes = 0;
+                let no = 0;
+                filteredRows.forEach(row => {
+                    const value = normalizeText(row[field.key]);
+                    if (value === 'نعم') {
+                        yes += 1;
+                    } else if (value === 'لا') {
+                        no += 1;
+                    }
+                });
+                const total = filteredRows.length;
+                const unknown = Math.max(total - yes - no, 0);
+                return { label: field.label, yes, no, unknown };
+            });
+
+            const leadershipCounts = countBy(columns.leadership);
+            const leadershipItems = baseData.leadershipParticipation.map(item => ({
+                label: item.label,
+                value: leadershipCounts.get(normalizeText(item.label)) || 0
+            }));
+
+            const classificationCounts = new Map();
+            filteredRows.forEach(row => {
+                const rawScore = normalizeText(row[columns.classificationScore]);
+                if (!rawScore) {
+                    return;
+                }
+                let label = '';
+                switch (rawScore) {
+                    case '4':
+                        label = 'التميز';
+                        break;
+                    case '3':
+                        label = 'التقدم';
+                        break;
+                    case '2':
+                        label = 'الانطلاق';
+                        break;
+                    case '1':
+                        label = 'التهيئة';
+                        break;
+                    default:
+                        label = 'التهيئة';
+                }
+                classificationCounts.set(label, (classificationCounts.get(label) || 0) + 1);
+            });
+
+            const supportFieldTotals = new Map();
+            const supportFieldKeys = [
+                'التدريس',
+                'نواتج التعلم',
+                'التوجيه الطلابي',
+                'النشاط الطلابي'
+            ];
+            filteredRows.forEach(row => {
+                const rawValue = normalizeText(row[columns.supportFields]);
+                if (!rawValue) {
+                    return;
+                }
+                const parts = rawValue.split(';').map(part => normalizeText(part)).filter(Boolean);
+                parts.forEach(part => {
+                    const label = supportFieldKeys.includes(part) ? part : 'غير ذلك';
+                    supportFieldTotals.set(label, (supportFieldTotals.get(label) || 0) + 1);
+                });
+            });
+
+            const sectorCounts = countBy(columns.sector);
+            const sectorDistribution = Array.from(sectorCounts.entries())
+                .map(([label, value]) => ({ label, value }))
+                .sort((a, b) => b.value - a.value);
+
+            const sectors = Array.from(new Set(rows.map(row => normalizeText(row[columns.sector])).filter(Boolean)))
+                .sort((a, b) => a.localeCompare(b, 'ar'));
+
+            const uniqueSchools = collectUnique([columns.assignedSchool, columns.additionalSchool]);
+            const uniqueSupervisors = collectUnique([columns.supervisors]);
+
+            const summary = {
+                totalReports: filteredRows.length,
+                totalSchools: uniqueSchools.size,
+                totalSupervisors: uniqueSupervisors.size,
+                sectorCount: Array.from(new Set(filteredRows.map(row => normalizeText(row[columns.sector])).filter(Boolean))).length,
+                maleSupervisors: genderCounts.get('بنين') || 0,
+                femaleSupervisors: genderCounts.get('بنات') || 0
+            };
+
+            return {
+                ...baseData,
+                filters: {
+                    sectors,
+                    selectedSector
+                },
+                summary,
+                schoolClassification: baseData.schoolClassification.map(item => ({
+                    label: item.label,
+                    value: classificationCounts.get(normalizeText(item.label)) || 0
+                })),
+                serviceTypes: baseData.serviceTypes.map(item => ({
+                    label: item.label,
+                    value: serviceTypeCounts.get(normalizeText(item.label)) || 0
+                })),
+                deliveryModes: baseData.deliveryModes.map(item => ({
+                    label: item.label,
+                    value: deliveryModeCounts.get(normalizeText(item.label)) || 0
+                })),
+                schoolTypes: baseData.schoolTypes.map(item => ({
+                    label: item.label,
+                    value: schoolTypeCounts.get(normalizeText(item.label)) || 0
+                })),
+                genderDistribution: baseData.genderDistribution.map(item => ({
+                    label: item.label,
+                    value: genderCounts.get(normalizeText(item.label)) || 0
+                })),
+                stageDistribution: baseData.stageDistribution.map(item => ({
+                    label: item.label,
+                    value: stageCounts.get(normalizeText(item.label)) || 0
+                })),
+                compliance,
+                leadershipParticipation: leadershipItems,
+                supportFields: baseData.supportFields.map(item => ({
+                    label: item.label,
+                    value: supportFieldTotals.get(normalizeText(item.label)) || 0
+                })),
+                sectorDistribution
+            };
+        };
+
         async function loadData() {
             try {
-                const response = await fetch('data.json');
-                if (!response.ok) {
+                const [jsonResponse, excelResponse] = await Promise.all([
+                    fetch('data.json'),
+                    fetch('الاسبوع الاول - تقرير مقدمي خدمة الدعم التميز.xlsx')
+                ]);
+
+                if (!jsonResponse.ok || !excelResponse.ok) {
                     throw new Error('فشل تحميل البيانات');
                 }
-                const data = await response.json();
-                renderDashboard(data);
+
+                const baseData = await jsonResponse.json();
+                const excelBuffer = await excelResponse.arrayBuffer();
+                const workbook = XLSX.read(excelBuffer, { type: 'array' });
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+                const headers = rows.length ? Object.keys(rows[0]) : [];
+                const columns = resolveColumnKeys(headers, COLUMN_LABELS);
+                const selectedSector = baseData.filters?.selectedSector || 'الكل';
+                const dashboardData = computeAggregates(rows, columns, selectedSector, baseData);
+
+                renderDashboard(dashboardData, rows, columns, baseData);
             } catch (error) {
                 document.getElementById('app').innerHTML = `
                     <div class="card" style="text-align:center;">
@@ -459,7 +693,7 @@
             }
         }
 
-        function renderDashboard(data) {
+        function renderDashboard(data, rows, columns, baseData) {
             const app = document.getElementById('app');
             const summary = data.summary;
 
@@ -498,7 +732,7 @@
                 <div class="filters">
                     <div class="filter-card">
                         <label>القطاع</label>
-                        <select>${sectorOptions}</select>
+                        <select id="sector-select">${sectorOptions}</select>
                     </div>
                     <div class="filter-card">
                         <label>الأسبوع</label>
@@ -747,6 +981,15 @@
                     تم تحديث البيانات آليًا من ملف التقارير الأسبوعي • جميع الأرقام مستخرجة من قاعدة البيانات المصدرية
                 </div>
             `;
+
+            const sectorSelect = document.getElementById('sector-select');
+            if (sectorSelect) {
+                sectorSelect.addEventListener('change', (event) => {
+                    const nextSector = event.target.value;
+                    const updatedData = computeAggregates(rows, columns, nextSector, baseData);
+                    renderDashboard(updatedData, rows, columns, baseData);
+                });
+            }
         }
 
         window.addEventListener('DOMContentLoaded', loadData);
