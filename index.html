@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة متابعة دعم التميز المدرسي</title>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #0f3d3e;
@@ -26,9 +26,18 @@
         }
 
         body {
-            font-family: 'IBM Plex Sans Arabic', sans-serif;
+            font-family: 'Tajawal', 'Cairo', sans-serif;
             background: var(--bg);
             color: var(--text);
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        .section-title {
+            font-family: 'Cairo', sans-serif;
+            letter-spacing: 0.2px;
         }
 
         .container {
@@ -304,7 +313,17 @@
     </div>
 
     <script>
-        const formatNumber = (value) => Number(value).toLocaleString('ar-SA');
+        const normalizeDigits = (value) => String(value)
+            .replace(/[٠-٩]/g, (digit) => '0123456789'['٠١٢٣٤٥٦٧٨٩'.indexOf(digit)])
+            .replace(/[۰-۹]/g, (digit) => '0123456789'['۰۱۲۳۴۵۶۷۸۹'.indexOf(digit)]);
+
+        const numberFormatter = new Intl.NumberFormat('en-US');
+
+        const formatNumber = (value) => {
+            const normalized = normalizeDigits(value);
+            const numeric = typeof value === 'number' ? value : Number(normalized);
+            return Number.isFinite(numeric) ? numberFormatter.format(numeric) : normalized;
+        };
 
         const buildBarList = (items) => {
             const max = Math.max(...items.map(item => item.value));
@@ -353,8 +372,8 @@
                         <p>${data.header.subtitle}</p>
                     </div>
                     <div class="meta">
-                        <div>${data.header.year}</div>
-                        <div>${data.header.week}</div>
+                        <div>${normalizeDigits(data.header.year)}</div>
+                        <div>${normalizeDigits(data.header.week)}</div>
                     </div>
                 </div>
 
@@ -365,7 +384,7 @@
                     </div>
                     <div class="filter-card">
                         <label>الأسبوع</label>
-                        <input type="text" value="${data.header.week}" readonly />
+                        <input type="text" value="${normalizeDigits(data.header.week)}" readonly />
                     </div>
                     <div class="filter-card">
                         <label>إجمالي المشرفين</label>
