@@ -84,6 +84,35 @@
             gap: 16px;
         }
 
+        .classification-row {
+            margin-top: 22px;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(160px, 1fr));
+            gap: 12px;
+        }
+
+        .classification-item {
+            background: var(--card);
+            border-radius: 14px;
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 24px var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .classification-item span {
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .classification-item strong {
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+
         .filter-card {
             background: var(--card);
             border-radius: 14px;
@@ -295,6 +324,10 @@
                 align-items: flex-start;
             }
 
+            .classification-row {
+                grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            }
+
             .bar-row {
                 grid-template-columns: 1fr;
                 align-items: start;
@@ -375,6 +408,15 @@
                         <div>${normalizeDigits(data.header.year)}</div>
                         <div>${normalizeDigits(data.header.week)}</div>
                     </div>
+                </div>
+
+                <div class="classification-row">
+                    ${data.schoolClassification.map(item => `
+                        <div class="classification-item">
+                            <span>${item.label}</span>
+                            <strong>${formatNumber(item.value)}</strong>
+                        </div>
+                    `).join('')}
                 </div>
 
                 <div class="filters">

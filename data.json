@@ -28,6 +28,24 @@
     "maleSupervisors": 249,
     "femaleSupervisors": 200
   },
+  "schoolClassification": [
+    {
+      "label": "نطاق التهيئة",
+      "value": 180
+    },
+    {
+      "label": "الانطلاق",
+      "value": 210
+    },
+    {
+      "label": "التقدم",
+      "value": 190
+    },
+    {
+      "label": "التميز",
+      "value": 125
+    }
+  ],
   "serviceTypes": [
     {
       "label": "تقديم خدمات دعم تميز مدرسي",
