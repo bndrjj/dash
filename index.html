@@ -17,6 +17,7 @@
             --muted: #5c6f73;
             --border: #d7e3e5;
             --shadow: rgba(15, 61, 62, 0.08);
+            --icon: #0f3d3e;
         }
 
         * {
@@ -197,6 +198,23 @@
             color: var(--primary);
         }
 
+        .title-with-icon {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .title-icon {
+            width: 18px;
+            height: 18px;
+            stroke: var(--icon);
+            fill: none;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            flex-shrink: 0;
+        }
+
         .section-subtitle {
             color: var(--muted);
             font-size: 0.9rem;
@@ -214,6 +232,12 @@
             padding: 20px;
             border: 1px solid var(--border);
             box-shadow: 0 12px 30px var(--shadow);
+        }
+
+        .card h4 {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .metric-list {
@@ -446,7 +470,14 @@
             app.innerHTML = `
                 <div class="top-bar">
                     <div class="title-group">
-                        <h1>${data.header.title}</h1>
+                        <h1 class="title-with-icon">
+                            <svg class="title-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                                <path d="M8 12h8"></path>
+                                <path d="M8 16h5"></path>
+                            </svg>
+                            <span>${data.header.title}</span>
+                        </h1>
                         <p>${data.header.subtitle}</p>
                     </div>
                     <div class="meta">
@@ -497,13 +528,28 @@
                 <section class="section">
                     <div class="section-header">
                         <div>
-                            <div class="section-title">مؤشرات الخدمة والتقارير</div>
+                            <div class="section-title title-with-icon">
+                                <svg class="title-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M4 18h16"></path>
+                                    <path d="M7 18V10"></path>
+                                    <path d="M12 18V6"></path>
+                                    <path d="M17 18v-4"></path>
+                                </svg>
+                                <span>مؤشرات الخدمة والتقارير</span>
+                            </div>
                             <div class="section-subtitle">عرض تفصيلي لأنواع الخدمة والتوزيع بحسب نوع المدرسة</div>
                         </div>
                     </div>
                     <div class="cards-grid">
                         <div class="card">
-                            <h4>نوع الخدمة المقدمة</h4>
+                            <h4>
+                                <svg class="title-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M5 6h14"></path>
+                                    <path d="M5 12h14"></path>
+                                    <path d="M5 18h14"></path>
+                                </svg>
+                                <span>نوع الخدمة المقدمة</span>
+                            </h4>
                             <div class="metric-list">
                                 ${data.serviceTypes.map(item => `
                                     <div class="metric-row">
@@ -514,7 +560,14 @@
                             </div>
                         </div>
                         <div class="card">
-                            <h4>نوع المدرسة حسب التقارير</h4>
+                            <h4>
+                                <svg class="title-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M4 10l8-6 8 6"></path>
+                                    <path d="M6 10v8h12v-8"></path>
+                                    <path d="M10 18v-4h4v4"></path>
+                                </svg>
+                                <span>نوع المدرسة حسب التقارير</span>
+                            </h4>
                             <div class="metric-list">
                                 ${data.genderDistribution.map(item => `
                                     <div class="metric-row">
@@ -525,7 +578,16 @@
                             </div>
                         </div>
                         <div class="card">
-                            <h4>أسلوب تقديم الخدمة</h4>
+                            <h4>
+                                <svg class="title-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M4 7h16"></path>
+                                    <path d="M4 12h10"></path>
+                                    <path d="M4 17h7"></path>
+                                    <path d="M17 12l3 3"></path>
+                                    <path d="M20 12l-3 3"></path>
+                                </svg>
+                                <span>أسلوب تقديم الخدمة</span>
+                            </h4>
                             <div class="metric-list">
                                 ${data.deliveryModes.map(item => `
                                     <div class="metric-row">
@@ -536,7 +598,17 @@
                             </div>
                         </div>
                         <div class="card">
-                            <h4>أنواع المدارس المستفيدة</h4>
+                            <h4>
+                                <svg class="title-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                    <circle cx="6" cy="12" r="2.5"></circle>
+                                    <circle cx="12" cy="7" r="2.5"></circle>
+                                    <circle cx="18" cy="12" r="2.5"></circle>
+                                    <path d="M6 14.5v3.5"></path>
+                                    <path d="M12 9.5V18"></path>
+                                    <path d="M18 14.5v3.5"></path>
+                                </svg>
+                                <span>أنواع المدارس المستفيدة</span>
+                            </h4>
                             <div class="metric-list">
                                 ${data.schoolTypes.map(item => `
                                     <div class="metric-row">
@@ -552,7 +624,13 @@
                 <section class="section">
                     <div class="section-header">
                         <div>
-                            <div class="section-title">الالتزام بتطبيقات المدرسة</div>
+                            <div class="section-title title-with-icon">
+                                <svg class="title-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M6 12l4 4 8-8"></path>
+                                    <path d="M4 7h16"></path>
+                                </svg>
+                                <span>الالتزام بتطبيقات المدرسة</span>
+                            </div>
                             <div class="section-subtitle">نسب تفعيل مدرستي والسلوك والمواظبة والانضباط</div>
                         </div>
                     </div>
@@ -562,7 +640,12 @@
                             const yesRate = total ? (item.yes / total) * 100 : 0;
                             return `
                                 <div class="compliance-card">
-                                    <h4>${item.label}</h4>
+                                    <h4>
+                                        <svg class="title-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path d="M5 13l4 4 10-10"></path>
+                                        </svg>
+                                        <span>${item.label}</span>
+                                    </h4>
                                     <div class="compliance-values">
                                         <span class="badge yes">نعم ${formatNumber(item.yes)}</span>
                                         <span class="badge no">لا ${formatNumber(item.no)}</span>
@@ -584,19 +667,39 @@
                 <section class="section">
                     <div class="section-header">
                         <div>
-                            <div class="section-title">التوزيع حسب المرحلة والقطاعات</div>
+                            <div class="section-title title-with-icon">
+                                <svg class="title-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M4 16h4V8H4z"></path>
+                                    <path d="M10 16h4V4h-4z"></path>
+                                    <path d="M16 16h4v-6h-4z"></path>
+                                </svg>
+                                <span>التوزيع حسب المرحلة والقطاعات</span>
+                            </div>
                             <div class="section-subtitle">توزيع المدارس وتقارير المشرفين حسب المرحلة والقطاع</div>
                         </div>
                     </div>
                     <div class="cards-grid">
                         <div class="card">
-                            <h4>المرحلة الدراسية</h4>
+                            <h4>
+                                <svg class="title-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M5 20V6l7-3 7 3v14"></path>
+                                    <path d="M9 20v-6h6v6"></path>
+                                </svg>
+                                <span>المرحلة الدراسية</span>
+                            </h4>
                             <div class="bar-list">
                                 ${buildBarList(data.stageDistribution)}
                             </div>
                         </div>
                         <div class="card">
-                            <h4>التوزيع على القطاعات</h4>
+                            <h4>
+                                <svg class="title-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                    <circle cx="12" cy="12" r="9"></circle>
+                                    <path d="M12 3v18"></path>
+                                    <path d="M3 12h18"></path>
+                                </svg>
+                                <span>التوزيع على القطاعات</span>
+                            </h4>
                             <div class="bar-list">
                                 ${buildBarList(data.sectorDistribution)}
                             </div>
@@ -607,7 +710,14 @@
                 <section class="section">
                     <div class="section-header">
                         <div>
-                            <div class="section-title">مشاركة قيادة المدرسة</div>
+                            <div class="section-title title-with-icon">
+                                <svg class="title-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M7 20v-6h10v6"></path>
+                                    <path d="M5 9l7-5 7 5"></path>
+                                    <path d="M12 9v5"></path>
+                                </svg>
+                                <span>مشاركة قيادة المدرسة</span>
+                            </div>
                             <div class="section-subtitle">مدى مشاركة القيادة في تنفيذ عمليات الدعم</div>
                         </div>
                     </div>
@@ -618,7 +728,14 @@
                             </div>
                         </div>
                         <div class="card">
-                            <h4>مجالات الدعم المنفذة</h4>
+                            <h4>
+                                <svg class="title-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M4 6h16"></path>
+                                    <path d="M4 12h16"></path>
+                                    <path d="M4 18h10"></path>
+                                </svg>
+                                <span>مجالات الدعم المنفذة</span>
+                            </h4>
                             <div class="bar-list">
                                 ${buildBarList(data.supportFields)}
                             </div>
