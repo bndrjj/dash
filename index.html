@@ -80,7 +80,7 @@
         .filters {
             margin-top: 24px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 16px;
         }
 
@@ -119,6 +119,9 @@
             padding: 16px 18px;
             box-shadow: 0 12px 30px var(--shadow);
             border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
 
         .filter-card label {
@@ -469,10 +472,6 @@
                     <div class="filter-card">
                         <label>الأسبوع</label>
                         <input type="text" value="${normalizeDigits(data.header.week)}" readonly />
-                    </div>
-                    <div class="filter-card">
-                        <label>إجمالي المشرفين</label>
-                        <input type="text" value="${formatNumber(summary.totalSupervisors)}" readonly />
                     </div>
                 </div>
 
