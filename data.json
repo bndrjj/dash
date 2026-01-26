@@ -96,8 +96,8 @@
   ],
   "stageDistribution": [
     {
-      "label": "ثانوي",
-      "value": 92
+      "label": "رياض الاطفال",
+      "value": 2
     },
     {
       "label": "ابتدائي",
@@ -108,16 +108,16 @@
       "value": 181
     },
     {
+      "label": "ثانوي",
+      "value": 92
+    },
+    {
       "label": "مجمع مدارس",
       "value": 38
     },
     {
-      "label": "مهمة",
+      "label": "مهمة عمل",
       "value": 4
-    },
-    {
-      "label": "رياض أطفال",
-      "value": 2
     }
   ],
   "compliance": [

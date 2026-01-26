@@ -516,12 +516,25 @@
             const genderCounts = countBy(columns.gender);
 
             const stageCounts = new Map();
+            const mapStageLabel = (rawStage) => {
+                if (rawStage.includes(';')) {
+                    return 'مجمع مدارس';
+                }
+                if (rawStage.includes('رياض')) {
+                    return 'رياض الاطفال';
+                }
+                if (rawStage.includes('مهمة')) {
+                    return 'مهمة عمل';
+                }
+                return rawStage;
+            };
+
             filteredRows.forEach(row => {
                 const rawStage = normalizeText(row[columns.stage]);
                 if (!rawStage) {
                     return;
                 }
-                const stage = rawStage.includes(';') ? 'مجمع مدارس' : rawStage;
+                const stage = mapStageLabel(rawStage);
                 stageCounts.set(stage, (stageCounts.get(stage) || 0) + 1);
             });
 
