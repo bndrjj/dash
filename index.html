@@ -555,32 +555,6 @@
                 value: leadershipCounts.get(normalizeText(item.label)) || 0
             }));
 
-            const classificationCounts = new Map();
-            filteredRows.forEach(row => {
-                const rawScore = normalizeText(row[columns.classificationScore]);
-                if (!rawScore) {
-                    return;
-                }
-                let label = '';
-                switch (rawScore) {
-                    case '4':
-                        label = 'التميز';
-                        break;
-                    case '3':
-                        label = 'التقدم';
-                        break;
-                    case '2':
-                        label = 'الانطلاق';
-                        break;
-                    case '1':
-                        label = 'التهيئة';
-                        break;
-                    default:
-                        label = 'التهيئة';
-                }
-                classificationCounts.set(label, (classificationCounts.get(label) || 0) + 1);
-            });
-
             const supportFieldTotals = new Map();
             const supportFieldKeys = [
                 'التدريس',
@@ -627,10 +601,7 @@
                     selectedSector
                 },
                 summary,
-                schoolClassification: baseData.schoolClassification.map(item => ({
-                    label: item.label,
-                    value: classificationCounts.get(normalizeText(item.label)) || 0
-                })),
+                schoolClassification: baseData.schoolClassification,
                 serviceTypes: baseData.serviceTypes.map(item => ({
                     label: item.label,
                     value: serviceTypeCounts.get(normalizeText(item.label)) || 0
