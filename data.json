@@ -30,20 +30,20 @@
   },
   "schoolClassification": [
     {
-      "label": "نطاق التهيئة",
-      "value": 180
+      "label": "التهيئة",
+      "value": 0
     },
     {
       "label": "الانطلاق",
-      "value": 210
+      "value": 532
     },
     {
       "label": "التقدم",
-      "value": 190
+      "value": 731
     },
     {
       "label": "التميز",
-      "value": 125
+      "value": 13
     }
   ],
   "serviceTypes": [
@@ -109,7 +109,7 @@
     },
     {
       "label": "مجمع مدارس",
-      "value": 266
+      "value": 38
     },
     {
       "label": "مهمة",
