@@ -311,6 +311,48 @@
             background: linear-gradient(90deg, var(--secondary), var(--accent));
         }
 
+        .compliance-gauge {
+            margin-top: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .gauge-ring {
+            --value: 0;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: conic-gradient(var(--secondary) calc(var(--value) * 1%), #e8eff1 0);
+            display: grid;
+            place-items: center;
+            position: relative;
+        }
+
+        .gauge-ring::after {
+            content: '';
+            position: absolute;
+            width: 86px;
+            height: 86px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: inset 0 0 0 1px rgba(15, 61, 62, 0.08);
+        }
+
+        .gauge-ring span {
+            position: relative;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            z-index: 1;
+        }
+
+        .gauge-caption {
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+
         .footer {
             margin-top: 40px;
             text-align: center;
@@ -528,6 +570,12 @@
                                         <span class="badge unknown">غير محدد ${formatNumber(item.unknown)}</span>
                                     </div>
                                     <div class="progress"><span style="width: ${yesRate}%;"></span></div>
+                                    <div class="compliance-gauge">
+                                        <div class="gauge-ring" style="--value: ${yesRate.toFixed(1)};">
+                                            <span>${yesRate.toFixed(1)}%</span>
+                                        </div>
+                                        <div class="gauge-caption">نسبة الالتزام</div>
+                                    </div>
                                 </div>
                             `;
                         }).join('')}
