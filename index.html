@@ -921,6 +921,25 @@
             const app = document.getElementById('app');
             const summary = data.summary;
             const supervisoryIndicators = data.supervisoryIndicators || [];
+            const setIndicatorDetail = (indicatorKey) => {
+                if (!indicatorKey) {
+                    return;
+                }
+                const detailPanel = app.querySelector('[data-indicator-detail]');
+                if (!detailPanel) {
+                    return;
+                }
+                const selectedIndicator = supervisoryIndicators.find(indicator => indicator.key === indicatorKey);
+                if (!selectedIndicator) {
+                    return;
+                }
+                detailPanel.innerHTML = `
+                    <h4>${selectedIndicator.label}</h4>
+                    <div class="bar-list">
+                        ${buildBarList(selectedIndicator.items)}
+                    </div>
+                `;
+            };
 
             const sectorOptions = ['الكل', ...data.filters.sectors]
                 .map(option => `<option ${option === data.filters.selectedSector ? 'selected' : ''}>${option}</option>`)
@@ -1261,6 +1280,7 @@
                 setIndicatorDetail(defaultIndicatorKey);
             }
 
+            const indicatorButtons = app.querySelectorAll('[data-indicator]');
             indicatorButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     setIndicatorDetail(button.dataset.indicator);
