@@ -407,73 +407,13 @@
             gap: 16px;
         }
 
-        .supervisory-summary {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 12px;
-        }
-
-        .supervisory-card {
-            border: 1px solid var(--border);
-            background: #fff;
-            border-radius: 14px;
-            padding: 16px;
-            box-shadow: 0 12px 28px var(--shadow);
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-            text-align: right;
-            font-family: inherit;
-        }
-
-        .supervisory-card:hover,
-        .supervisory-card.active {
-            border-color: var(--accent);
-            box-shadow: 0 16px 32px rgba(43, 138, 155, 0.2);
-            transform: translateY(-2px);
-        }
-
-        .supervisory-card .card-label {
-            font-size: 0.95rem;
-            color: var(--muted);
-            margin-bottom: 8px;
-        }
-
-        .supervisory-card .card-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 10px;
-        }
-
-        .supervisory-card .mini-bar {
-            width: 100%;
-            height: 6px;
-            background: var(--accent-light);
-            border-radius: 999px;
-            overflow: hidden;
-        }
-
-        .supervisory-card .mini-bar span {
-            display: block;
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent), var(--secondary));
-        }
-
-        .supervisory-detail h4 {
-            margin-bottom: 12px;
-        }
-
-        .supervisory-detail .detail-header {
+        .supervisory-domain h4 {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-
-        .supervisory-detail .detail-header span {
-            color: var(--muted);
-            font-size: 0.9rem;
+            gap: 8px;
+            font-size: 1rem;
+            margin-bottom: 14px;
+            color: var(--primary);
         }
 
         .footer {
@@ -583,13 +523,15 @@
                 title: 'الإجراءات المنفذة من قبل المشرف التربوي في مجال التدريس',
                 summaryColumn: 'CV',
                 detailColumns: ['DS', 'DT', 'DU', 'DV', 'DW', 'DX', 'DY'],
-                fallbackLabels: [
+                fixedLabels: [
                     'زيارة صفية بالتنسيق مع إدارة المدرسة واللجان المعنية بقصد التطوير أو قياس الأثر',
                     'تقديم تغذية راجعة لمعلم أو أكثر',
                     'مراجعة خطة الدرس أو الخطة الفصلية',
                     'دعم توظيف أدوات التقويم (أدائية – تحريرية – شفهية)',
                     'دعم وتحفيز تفعيل مجتمعات التعلم المهنية بين المعلمين',
                     'إعداد أو مراجعة أدوات تقييم أداء الطلاب',
+                    'تقديم استشارات لدعم التعليم الالكتروني',
+                    'تقديم التطوير المهني المستمر لمنسوبي المدرسة في مجال التدريس',
                     'قيم متنوعة اخرى'
                 ]
             },
@@ -599,11 +541,13 @@
                 title: 'الإجراءات المنفذة من قبل المشرف التربوي في مجال نواتج التعلم',
                 summaryColumn: 'CW',
                 detailColumns: ['DZ', 'EA', 'EB', 'EC', 'ED'],
-                fallbackLabels: [
+                fixedLabels: [
                     'تحليل نتائج اختبارات المدرسة أو الاختبارات الوطنية المختلفة أو دعم اللجنة المختصة بالمدرسة في ذلك',
                     'دعم ومشاركة اللجان المختصة بالمدرسة في معالجة مواطن الضعف واستثمار مواطن القوة',
                     'دعم اللجنة المختصة بالمدرسة في إعداد خطة علاجية أو إثرائية',
                     'دعم تكييف التعليم وفق الفروق الفردية',
+                    'متابعة مؤشرات التحصيل عبر المنصات وغيرها',
+                    'تقديم التطوير المهني المستمر لمنسوبي المدرسة في مجال نواتج التعلم',
                     'قيم متنوعة اخرى'
                 ]
             },
@@ -613,12 +557,14 @@
                 title: 'الإجراءات المنفذة من قبل المشرف التربوي في مجال التوجيه الطلابي',
                 summaryColumn: 'DC',
                 detailColumns: ['EE', 'EF', 'EG', 'EH', 'EI', 'EJ'],
-                fallbackLabels: [
+                fixedLabels: [
                     'لقاء مع الموجه الطلابي أو لجنة التوجيه',
                     'دعم الموجه الطلابي أو اللجنة المختصة في معالجة حالات الطلاب',
                     'دعم قيم الانضباط والسلوك',
                     'دعم خطة التوجيه الطلابي السنوية',
                     'التشجيع على تبني المبادرات في الشراكة المجتمعية',
+                    'دعم اللجنة المختصة في تعزيز التطور الصحي والنفسي والاجتماعي للطلبة',
+                    'تقديم التطوير المهني المستمر لمنسوبي المدرسة في مجال التوجيه الطلابي',
                     'قيم متنوعة اخرى'
                 ]
             },
@@ -628,12 +574,14 @@
                 title: 'الإجراءات المنفذة من قبل المشرف التربوي في مجال النشاط الطلابي',
                 summaryColumn: 'DD',
                 detailColumns: ['EK', 'EL', 'EM', 'EN', 'EO', 'EP'],
-                fallbackLabels: [
+                fixedLabels: [
                     'المشاركة في إعداد خطة النشاط',
                     'حضور أو دعم مناشط صفية أو غير صفية',
                     'مواءمة الأنشطة مع القيم والمهارات المستهدفة',
                     'دعم اللجنة المختصة بالنشاط المدرسي',
                     'إبراز إنجاز طلابي متميز',
+                    'المشاركة في نشر ثقافة العمل التطوعي لمنسوبي المدرسة',
+                    'تقديم التطوير المهني المستمر لمنسوبي المدرسة في مجال النشاط الطلابي',
                     'قيم متنوعة اخرى'
                 ]
             }
@@ -644,17 +592,9 @@
             return Number.isFinite(numeric) ? numeric : 0;
         };
 
-        const resolveIndicatorLabels = (headers, letters, fallbackLabels) => {
-            return letters.map((letter, index) => {
-                const columnIndex = XLSX.utils.decode_col(letter);
-                const headerValue = headers && headers[columnIndex] ? normalizeText(headers[columnIndex]) : '';
-                return headerValue || fallbackLabels[index] || `البند ${index + 1}`;
-            });
-        };
-
         const buildSupervisoryIndicators = (rawRows, rawHeaders, selectedSector) => {
             if (!rawRows.length) {
-                return { summary: [], details: {} };
+                return [];
             }
 
             const sectorIndex = rawHeaders
@@ -665,32 +605,27 @@
                 ? rawRows
                 : rawRows.filter(row => normalizeText(row[sectorIndex]) === normalizeText(selectedSector));
 
-            const details = {};
-            const summary = SUPERVISORY_INDICATORS.map(config => {
-                const detailLabels = resolveIndicatorLabels(rawHeaders, config.detailColumns, config.fallbackLabels);
-                const detailItems = config.detailColumns.map((letter, index) => {
-                    const columnIndex = XLSX.utils.decode_col(letter);
-                    const total = filteredRawRows.reduce((sum, row) => sum + parseNumber(row[columnIndex]), 0);
-                    return { label: detailLabels[index], value: total };
-                });
-
-                details[config.key] = {
-                    title: config.title,
-                    items: detailItems
-                };
-
+            return SUPERVISORY_INDICATORS.map(config => {
                 const summaryIndex = XLSX.utils.decode_col(config.summaryColumn);
                 const summaryTotal = filteredRawRows.reduce((sum, row) => sum + parseNumber(row[summaryIndex]), 0);
+                const detailItems = config.fixedLabels.map((label, index) => {
+                    const columnLetter = config.detailColumns[index];
+                    if (!columnLetter) {
+                        return { label, value: 0 };
+                    }
+                    const columnIndex = XLSX.utils.decode_col(columnLetter);
+                    const total = filteredRawRows.reduce((sum, row) => sum + parseNumber(row[columnIndex]), 0);
+                    return { label, value: total };
+                });
 
                 return {
                     key: config.key,
                     label: config.title,
                     shortLabel: config.shortLabel,
-                    value: summaryTotal
+                    value: summaryTotal,
+                    items: detailItems
                 };
             });
-
-            return { summary, details };
         };
 
         const computeSupervisorSummary = (rows, columns, selectedSector) => {
@@ -977,11 +912,7 @@
         function renderDashboard(data, rows, columns, baseData, supervisorRows, supervisorColumns, schoolSupportColumns, rawRows, rawHeaders) {
             const app = document.getElementById('app');
             const summary = data.summary;
-            const indicatorSummary = data.supervisoryIndicators?.summary || [];
-            const indicatorDetails = data.supervisoryIndicators?.details || {};
-            const indicatorMax = Math.max(...indicatorSummary.map(item => item.value), 1);
-            const defaultIndicatorKey = indicatorSummary[0]?.key;
-            const defaultIndicatorDetail = defaultIndicatorKey ? indicatorDetails[defaultIndicatorKey] : null;
+            const supervisoryIndicators = data.supervisoryIndicators || [];
 
             const sectorOptions = ['الكل', ...data.filters.sectors]
                 .map(option => `<option ${option === data.filters.selectedSector ? 'selected' : ''}>${option}</option>`)
@@ -1276,37 +1207,21 @@
                         </div>
                     </div>
                     <div class="supervisory-grid">
-                        <div class="card">
-                            <h4>
-                                <svg class="title-icon" viewBox="0 0 24 24" aria-hidden="true">
-                                    <path d="M4 8h16"></path>
-                                    <path d="M4 12h16"></path>
-                                    <path d="M4 16h10"></path>
-                                </svg>
-                                <span>المؤشرات الرئيسة</span>
-                            </h4>
-                            <div class="supervisory-summary">
-                                ${indicatorSummary.map(item => {
-                                    const width = indicatorMax ? (item.value / indicatorMax) * 100 : 0;
-                                    return `
-                                        <button class="supervisory-card ${item.key === defaultIndicatorKey ? 'active' : ''}" type="button" data-indicator="${item.key}">
-                                            <div class="card-label">${item.shortLabel}</div>
-                                            <div class="card-value">${formatNumber(item.value)}</div>
-                                            <div class="mini-bar"><span style="width: ${width}%;"></span></div>
-                                        </button>
-                                    `;
-                                }).join('')}
+                        ${supervisoryIndicators.map(indicator => `
+                            <div class="card supervisory-domain">
+                                <h4>
+                                    <svg class="title-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="M4 10h16"></path>
+                                        <path d="M4 14h16"></path>
+                                        <path d="M4 18h10"></path>
+                                    </svg>
+                                    <span>${indicator.title}</span>
+                                </h4>
+                                <div class="bar-list">
+                                    ${buildBarList(indicator.items)}
+                                </div>
                             </div>
-                        </div>
-                        <div class="card supervisory-detail">
-                            <div class="detail-header">
-                                <h4 id="indicator-detail-title">${defaultIndicatorDetail ? defaultIndicatorDetail.title : ''}</h4>
-                                <span>تفصيل المؤشرات</span>
-                            </div>
-                            <div class="bar-list" id="indicator-detail-list">
-                                ${defaultIndicatorDetail ? buildBarList(defaultIndicatorDetail.items) : ''}
-                            </div>
-                        </div>
+                        `).join('')}
                     </div>
                 </section>
 
@@ -1331,22 +1246,6 @@
                         rawHeaders
                     );
                     renderDashboard(updatedData, rows, columns, baseData, supervisorRows, supervisorColumns, schoolSupportColumns, rawRows, rawHeaders);
-                });
-            }
-
-            const indicatorButtons = document.querySelectorAll('[data-indicator]');
-            const indicatorTitle = document.getElementById('indicator-detail-title');
-            const indicatorList = document.getElementById('indicator-detail-list');
-
-            const setIndicatorDetail = (key) => {
-                const detail = indicatorDetails[key];
-                if (!detail || !indicatorList || !indicatorTitle) {
-                    return;
-                }
-                indicatorTitle.textContent = detail.title;
-                indicatorList.innerHTML = buildBarList(detail.items);
-                indicatorButtons.forEach(button => {
-                    button.classList.toggle('active', button.dataset.indicator === key);
                 });
             };
 
