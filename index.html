@@ -400,6 +400,22 @@
             color: var(--muted);
         }
 
+        .supervisory-grid {
+            margin-top: 16px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .supervisory-domain h4 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+            margin-bottom: 14px;
+            color: var(--primary);
+        }
+
         .footer {
             margin-top: 40px;
             text-align: center;
@@ -448,8 +464,10 @@
             return Number.isFinite(numeric) ? numberFormatter.format(numeric) : normalized;
         };
 
+        const defaultIndicatorKey = null;
+
         const buildBarList = (items) => {
-            const max = Math.max(...items.map(item => item.value));
+            const max = items.length ? Math.max(...items.map(item => item.value)) : 0;
             return items.map(item => {
                 const width = max ? (item.value / max) * 100 : 0;
                 return `
@@ -500,9 +518,116 @@
             complianceAttendance: 'هل تم تثبيت الغياب بشكل منتظم خلال الاسبوع'
         };
 
+        const SUPERVISORY_INDICATORS = [
+            {
+                key: 'teaching',
+                shortLabel: 'التدريس',
+                title: 'الإجراءات المنفذة من قبل المشرف التربوي في مجال التدريس',
+                summaryColumn: 'CV',
+                detailColumns: ['DS', 'DT', 'DU', 'DV', 'DW', 'DX', 'DY'],
+                fixedLabels: [
+                    'زيارة صفية بالتنسيق مع إدارة المدرسة واللجان المعنية بقصد التطوير أو قياس الأثر',
+                    'تقديم تغذية راجعة لمعلم أو أكثر',
+                    'مراجعة خطة الدرس أو الخطة الفصلية',
+                    'دعم توظيف أدوات التقويم (أدائية – تحريرية – شفهية)',
+                    'دعم وتحفيز تفعيل مجتمعات التعلم المهنية بين المعلمين',
+                    'إعداد أو مراجعة أدوات تقييم أداء الطلاب',
+                    'تقديم استشارات لدعم التعليم الالكتروني',
+                    'تقديم التطوير المهني المستمر لمنسوبي المدرسة في مجال التدريس',
+                    'قيم متنوعة اخرى'
+                ]
+            },
+            {
+                key: 'learning',
+                shortLabel: 'نواتج التعلم',
+                title: 'الإجراءات المنفذة من قبل المشرف التربوي في مجال نواتج التعلم',
+                summaryColumn: 'CW',
+                detailColumns: ['DZ', 'EA', 'EB', 'EC', 'ED'],
+                fixedLabels: [
+                    'تحليل نتائج اختبارات المدرسة أو الاختبارات الوطنية المختلفة أو دعم اللجنة المختصة بالمدرسة في ذلك',
+                    'دعم ومشاركة اللجان المختصة بالمدرسة في معالجة مواطن الضعف واستثمار مواطن القوة',
+                    'دعم اللجنة المختصة بالمدرسة في إعداد خطة علاجية أو إثرائية',
+                    'دعم تكييف التعليم وفق الفروق الفردية',
+                    'متابعة مؤشرات التحصيل عبر المنصات وغيرها',
+                    'تقديم التطوير المهني المستمر لمنسوبي المدرسة في مجال نواتج التعلم',
+                    'قيم متنوعة اخرى'
+                ]
+            },
+            {
+                key: 'guidance',
+                shortLabel: 'التوجيه الطلابي',
+                title: 'الإجراءات المنفذة من قبل المشرف التربوي في مجال التوجيه الطلابي',
+                summaryColumn: 'DC',
+                detailColumns: ['EE', 'EF', 'EG', 'EH', 'EI', 'EJ'],
+                fixedLabels: [
+                    'لقاء مع الموجه الطلابي أو لجنة التوجيه',
+                    'دعم الموجه الطلابي أو اللجنة المختصة في معالجة حالات الطلاب',
+                    'دعم قيم الانضباط والسلوك',
+                    'دعم خطة التوجيه الطلابي السنوية',
+                    'التشجيع على تبني المبادرات في الشراكة المجتمعية',
+                    'دعم اللجنة المختصة في تعزيز التطور الصحي والنفسي والاجتماعي للطلبة',
+                    'تقديم التطوير المهني المستمر لمنسوبي المدرسة في مجال التوجيه الطلابي',
+                    'قيم متنوعة اخرى'
+                ]
+            },
+            {
+                key: 'activity',
+                shortLabel: 'النشاط الطلابي',
+                title: 'الإجراءات المنفذة من قبل المشرف التربوي في مجال النشاط الطلابي',
+                summaryColumn: 'DD',
+                detailColumns: ['EK', 'EL', 'EM', 'EN', 'EO', 'EP'],
+                fixedLabels: [
+                    'المشاركة في إعداد خطة النشاط',
+                    'حضور أو دعم مناشط صفية أو غير صفية',
+                    'مواءمة الأنشطة مع القيم والمهارات المستهدفة',
+                    'دعم اللجنة المختصة بالنشاط المدرسي',
+                    'إبراز إنجاز طلابي متميز',
+                    'المشاركة في نشر ثقافة العمل التطوعي لمنسوبي المدرسة',
+                    'تقديم التطوير المهني المستمر لمنسوبي المدرسة في مجال النشاط الطلابي',
+                    'قيم متنوعة اخرى'
+                ]
+            }
+        ];
+
         const parseNumber = (value) => {
             const numeric = Number(String(value || '').replace(/,/g, '').trim());
             return Number.isFinite(numeric) ? numeric : 0;
+        };
+
+        const buildSupervisoryIndicators = (rawRows, rawHeaders, selectedSector) => {
+            if (!rawRows.length) {
+                return [];
+            }
+
+            const sectorIndex = rawHeaders
+                ? rawHeaders.findIndex(header => normalizeText(header) === normalizeText(COLUMN_LABELS.sector))
+                : -1;
+
+            const filteredRawRows = selectedSector === 'الكل' || sectorIndex === -1
+                ? rawRows
+                : rawRows.filter(row => normalizeText(row[sectorIndex]) === normalizeText(selectedSector));
+
+            return SUPERVISORY_INDICATORS.map(config => {
+                const summaryIndex = XLSX.utils.decode_col(config.summaryColumn);
+                const summaryTotal = filteredRawRows.reduce((sum, row) => sum + parseNumber(row[summaryIndex]), 0);
+                const detailItems = config.fixedLabels.map((label, index) => {
+                    const columnLetter = config.detailColumns[index];
+                    if (!columnLetter) {
+                        return { label, value: 0 };
+                    }
+                    const columnIndex = XLSX.utils.decode_col(columnLetter);
+                    const total = filteredRawRows.reduce((sum, row) => sum + parseNumber(row[columnIndex]), 0);
+                    return { label, value: total };
+                });
+
+                return {
+                    key: config.key,
+                    label: config.title,
+                    shortLabel: config.shortLabel,
+                    value: summaryTotal,
+                    items: detailItems
+                };
+            });
         };
 
         const computeSupervisorSummary = (rows, columns, selectedSector) => {
@@ -554,7 +679,7 @@
             }, { total: 0, male: 0, female: 0 });
         };
 
-        const computeAggregates = (rows, columns, selectedSector, baseData, supervisorRows, supervisorColumns, schoolSupportColumns) => {
+        const computeAggregates = (rows, columns, selectedSector, baseData, supervisorRows, supervisorColumns, schoolSupportColumns, rawRows, rawHeaders) => {
             const filteredRows = selectedSector === 'الكل'
                 ? rows
                 : rows.filter(row => normalizeText(row[columns.sector]) === normalizeText(selectedSector));
@@ -673,6 +798,7 @@
             const uniqueSupervisors = collectUnique([columns.supervisors]);
             const supervisorSummary = computeSupervisorSummary(supervisorRows, supervisorColumns, selectedSector);
             const schoolSupportSummary = computeSchoolSupportSummary(supervisorRows, schoolSupportColumns, selectedSector);
+            const supervisoryIndicators = buildSupervisoryIndicators(rawRows, rawHeaders, selectedSector);
 
             const summary = {
                 totalReports: filteredRows.length,
@@ -719,7 +845,8 @@
                     label: item.label,
                     value: supportFieldTotals.get(normalizeText(item.label)) || 0
                 })),
-                sectorDistribution
+                sectorDistribution,
+                supervisoryIndicators
             };
         };
 
@@ -741,6 +868,9 @@
                 const supervisorSheet = workbook.Sheets.ALL1;
                 const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
                 const headers = rows.length ? Object.keys(rows[0]) : [];
+                const rawRows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+                const rawHeaders = rawRows.length ? rawRows[0] : [];
+                const rawDataRows = rawRows.length ? rawRows.slice(1) : [];
                 const columns = resolveColumnKeys(headers, COLUMN_LABELS);
                 const supervisorRows = supervisorSheet ? XLSX.utils.sheet_to_json(supervisorSheet, { defval: '' }) : [];
                 const supervisorHeaders = supervisorRows.length ? Object.keys(supervisorRows[0]) : [];
@@ -765,10 +895,12 @@
                     baseData,
                     supervisorRows,
                     supervisorColumns,
-                    schoolSupportColumns
+                    schoolSupportColumns,
+                    rawDataRows,
+                    rawHeaders
                 );
 
-                renderDashboard(dashboardData, rows, columns, baseData, supervisorRows, supervisorColumns, schoolSupportColumns);
+                renderDashboard(dashboardData, rows, columns, baseData, supervisorRows, supervisorColumns, schoolSupportColumns, rawDataRows, rawHeaders);
             } catch (error) {
                 document.getElementById('app').innerHTML = `
                     <div class="card" style="text-align:center;">
@@ -779,9 +911,10 @@
             }
         }
 
-        function renderDashboard(data, rows, columns, baseData, supervisorRows, supervisorColumns, schoolSupportColumns) {
+        function renderDashboard(data, rows, columns, baseData, supervisorRows, supervisorColumns, schoolSupportColumns, rawRows, rawHeaders) {
             const app = document.getElementById('app');
             const summary = data.summary;
+            const supervisoryIndicators = data.supervisoryIndicators || [];
 
             const sectorOptions = ['الكل', ...data.filters.sectors]
                 .map(option => `<option ${option === data.filters.selectedSector ? 'selected' : ''}>${option}</option>`)
@@ -1060,6 +1193,40 @@
                     </div>
                 </section>
 
+                <section class="section">
+                    <div class="section-header">
+                        <div>
+                            <div class="section-title title-with-icon">
+                                <svg class="title-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M4 19h16"></path>
+                                    <path d="M6 17V9"></path>
+                                    <path d="M12 17V5"></path>
+                                    <path d="M18 17v-6"></path>
+                                </svg>
+                                <span>المؤشرات الخاصة بالمجالات الإشرافية لتقديم الدعم</span>
+                            </div>
+                            <div class="section-subtitle">مؤشر شامل لأربع مجالات إشرافية مع تفاصيل الإجراءات لكل مجال</div>
+                        </div>
+                    </div>
+                    <div class="supervisory-grid">
+                        ${supervisoryIndicators.map(indicator => `
+                            <div class="card supervisory-domain">
+                                <h4>
+                                    <svg class="title-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="M4 10h16"></path>
+                                        <path d="M4 14h16"></path>
+                                        <path d="M4 18h10"></path>
+                                    </svg>
+                                    <span>${indicator.title}</span>
+                                </h4>
+                                <div class="bar-list">
+                                    ${buildBarList(indicator.items)}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </section>
+
                 <div class="footer">
                     تم تحديث البيانات آليًا من ملف التقارير الأسبوعي • جميع الأرقام مستخرجة من قاعدة البيانات المصدرية
                 </div>
@@ -1076,9 +1243,11 @@
                         baseData,
                         supervisorRows,
                         supervisorColumns,
-                        schoolSupportColumns
+                        schoolSupportColumns,
+                        rawRows,
+                        rawHeaders
                     );
-                    renderDashboard(updatedData, rows, columns, baseData, supervisorRows, supervisorColumns, schoolSupportColumns);
+                    renderDashboard(updatedData, rows, columns, baseData, supervisorRows, supervisorColumns, schoolSupportColumns, rawRows, rawHeaders);
                 });
             }
         }
