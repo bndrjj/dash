@@ -902,10 +902,16 @@
 
                 renderDashboard(dashboardData, rows, columns, baseData, supervisorRows, supervisorColumns, schoolSupportColumns, rawDataRows, rawHeaders);
             } catch (error) {
+                const fallbackMessage = 'تعذر تحميل البيانات، يرجى تحديث الصفحة أو المحاولة لاحقًا.';
+                const errorMessage = error && error.message ? error.message : fallbackMessage;
+                const friendlyMessage = errorMessage.includes('defaultIndicatorKey')
+                    ? 'تعذر تحميل البيانات، جارٍ معالجة المشكلة. يرجى تحديث الصفحة لاحقًا.'
+                    : fallbackMessage;
+                console.error('Dashboard load error:', error);
                 document.getElementById('app').innerHTML = `
                     <div class="card" style="text-align:center;">
                         <h2>⚠️ تعذر تحميل البيانات</h2>
-                        <p style="margin-top:8px;">${error.message}</p>
+                        <p style="margin-top:8px;">${friendlyMessage}</p>
                     </div>
                 `;
             }
