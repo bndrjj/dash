@@ -608,17 +608,36 @@
                 : rawRows.filter(row => normalizeText(row[sectorIndex]) === normalizeText(selectedSector));
 
             return SUPERVISORY_INDICATORS.map(config => {
-                const summaryIndex = XLSX.utils.decode_col(config.summaryColumn);
-                const summaryTotal = filteredRawRows.reduce((sum, row) => sum + parseNumber(row[summaryIndex]), 0);
-                const detailItems = config.fixedLabels.map((label, index) => {
-                    const columnLetter = config.detailColumns[index];
-                    if (!columnLetter) {
-                        return { label, value: 0 };
-                    }
-                    const columnIndex = XLSX.utils.decode_col(columnLetter);
-                    const total = filteredRawRows.reduce((sum, row) => sum + parseNumber(row[columnIndex]), 0);
-                    return { label, value: total };
+                const otherLabel = config.fixedLabels[config.fixedLabels.length - 1];
+                const baseLabels = config.fixedLabels.filter(label => normalizeText(label) !== normalizeText(otherLabel));
+                const labelMap = new Map(baseLabels.map(label => [normalizeText(label), label]));
+                const counts = new Map();
+
+                baseLabels.forEach(label => counts.set(label, 0));
+                counts.set(otherLabel, 0);
+
+                const columnIndices = config.detailColumns.map(letter => XLSX.utils.decode_col(letter));
+
+                filteredRawRows.forEach(row => {
+                    columnIndices.forEach(columnIndex => {
+                        const value = normalizeText(row[columnIndex]);
+                        if (!value) {
+                            return;
+                        }
+                        const matchedLabel = labelMap.get(value);
+                        if (matchedLabel) {
+                            counts.set(matchedLabel, (counts.get(matchedLabel) || 0) + 1);
+                        } else {
+                            counts.set(otherLabel, (counts.get(otherLabel) || 0) + 1);
+                        }
+                    });
                 });
+
+                const detailItems = config.fixedLabels.map(label => ({
+                    label,
+                    value: counts.get(label) || 0
+                }));
+                const summaryTotal = Array.from(counts.values()).reduce((sum, value) => sum + value, 0);
 
                 return {
                     key: config.key,
