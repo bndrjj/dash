@@ -464,6 +464,8 @@
             return Number.isFinite(numeric) ? numberFormatter.format(numeric) : normalized;
         };
 
+        const defaultIndicatorKey = null;
+
         const buildBarList = (items) => {
             const max = items.length ? Math.max(...items.map(item => item.value)) : 0;
             return items.map(item => {
