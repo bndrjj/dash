@@ -1247,7 +1247,17 @@
                     );
                     renderDashboard(updatedData, rows, columns, baseData, supervisorRows, supervisorColumns, schoolSupportColumns, rawRows, rawHeaders);
                 });
+            };
+
+            if (defaultIndicatorKey) {
+                setIndicatorDetail(defaultIndicatorKey);
             }
+
+            indicatorButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    setIndicatorDetail(button.dataset.indicator);
+                });
+            });
         }
 
         window.addEventListener('DOMContentLoaded', loadData);
