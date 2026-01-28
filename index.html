@@ -533,8 +533,7 @@
                     'دعم وتحفيز تفعيل مجتمعات التعلم المهنية بين المعلمين',
                     'إعداد أو مراجعة أدوات تقييم أداء الطلاب',
                     'تقديم استشارات لدعم التعليم الالكتروني',
-                    'تقديم التطوير المهني المستمر لمنسوبي المدرسة في مجال التدريس',
-                    'قيم متنوعة اخرى'
+                    'تقديم التطوير المهني المستمر لمنسوبي المدرسة في مجال التدريس'
                 ]
             },
             {
@@ -549,8 +548,7 @@
                     'دعم اللجنة المختصة بالمدرسة في إعداد خطة علاجية أو إثرائية',
                     'دعم تكييف التعليم وفق الفروق الفردية',
                     'متابعة مؤشرات التحصيل عبر المنصات وغيرها',
-                    'تقديم التطوير المهني المستمر لمنسوبي المدرسة في مجال نواتج التعلم',
-                    'قيم متنوعة اخرى'
+                    'تقديم التطوير المهني المستمر لمنسوبي المدرسة في مجال نواتج التعلم'
                 ]
             },
             {
@@ -566,8 +564,7 @@
                     'دعم خطة التوجيه الطلابي السنوية',
                     'التشجيع على تبني المبادرات في الشراكة المجتمعية',
                     'دعم اللجنة المختصة في تعزيز التطور الصحي والنفسي والاجتماعي للطلبة',
-                    'تقديم التطوير المهني المستمر لمنسوبي المدرسة في مجال التوجيه الطلابي',
-                    'قيم متنوعة اخرى'
+                    'تقديم التطوير المهني المستمر لمنسوبي المدرسة في مجال التوجيه الطلابي'
                 ]
             },
             {
@@ -583,8 +580,7 @@
                     'دعم اللجنة المختصة بالنشاط المدرسي',
                     'إبراز إنجاز طلابي متميز',
                     'المشاركة في نشر ثقافة العمل التطوعي لمنسوبي المدرسة',
-                    'تقديم التطوير المهني المستمر لمنسوبي المدرسة في مجال النشاط الطلابي',
-                    'قيم متنوعة اخرى'
+                    'تقديم التطوير المهني المستمر لمنسوبي المدرسة في مجال النشاط الطلابي'
                 ]
             }
         ];
@@ -608,13 +604,11 @@
                 : rawRows.filter(row => normalizeText(row[sectorIndex]) === normalizeText(selectedSector));
 
             return SUPERVISORY_INDICATORS.map(config => {
-                const otherLabel = config.fixedLabels[config.fixedLabels.length - 1];
-                const baseLabels = config.fixedLabels.filter(label => normalizeText(label) !== normalizeText(otherLabel));
+                const baseLabels = config.fixedLabels;
                 const labelMap = new Map(baseLabels.map(label => [normalizeText(label), label]));
                 const counts = new Map();
 
                 baseLabels.forEach(label => counts.set(label, 0));
-                counts.set(otherLabel, 0);
 
                 const columnIndices = config.detailColumns.map(letter => XLSX.utils.decode_col(letter));
 
@@ -627,8 +621,6 @@
                         const matchedLabel = labelMap.get(value);
                         if (matchedLabel) {
                             counts.set(matchedLabel, (counts.get(matchedLabel) || 0) + 1);
-                        } else {
-                            counts.set(otherLabel, (counts.get(otherLabel) || 0) + 1);
                         }
                     });
                 });
