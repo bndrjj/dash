@@ -424,22 +424,13 @@
         }
 
         .visit-counter {
-            margin-top: 12px;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 18px;
-            border-radius: 999px;
-            background: #ffffff;
-            border: 1px solid var(--border);
-            box-shadow: 0 8px 20px var(--shadow);
-            font-weight: 600;
-            color: var(--primary);
+            display: inline;
+            font-weight: inherit;
+            color: inherit;
         }
 
         .visit-counter span {
-            color: var(--muted);
-            font-weight: 500;
+            font-weight: inherit;
         }
 
         @media (max-width: 768px) {
@@ -1353,11 +1344,8 @@
                 </section>
 
                 <div class="footer">
-                    تم تحديث البيانات آليًا من ملف التقارير الأسبوعي • جميع الأرقام مستخرجة من قاعدة البيانات المصدرية
-                    <div class="visit-counter">
-                        ${formatNumber(visitCount)}
-                        <span>عدد الزيارات</span>
-                    </div>
+                    تم تحديث البيانات آليًا من ملف التقارير الأسبوعي • جميع الأرقام مستخرجة من قاعدة البيانات المصدرية •
+                    <span class="visit-counter">أنت الزائر رقم ${formatNumber(visitCount)}</span>
                 </div>
             `;
 
