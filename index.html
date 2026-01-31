@@ -865,7 +865,7 @@
             try {
                 const [jsonResponse, excelResponse] = await Promise.all([
                     fetch('data.json'),
-                    fetch('الاسبوع الاول - تقرير مقدمي خدمة الدعم التميز.xlsx')
+                    fetch('report1447-2.xlsx')
                 ]);
 
                 if (!jsonResponse.ok || !excelResponse.ok) {
