@@ -423,6 +423,16 @@
             font-size: 0.9rem;
         }
 
+        .visit-counter {
+            display: inline;
+            font-weight: inherit;
+            color: inherit;
+        }
+
+        .visit-counter span {
+            font-weight: inherit;
+        }
+
         @media (max-width: 768px) {
             .top-bar {
                 flex-direction: column;
@@ -455,6 +465,14 @@
         const normalizeDigits = (value) => String(value)
             .replace(/[٠-٩]/g, (digit) => '0123456789'['٠١٢٣٤٥٦٧٨٩'.indexOf(digit)])
             .replace(/[۰-۹]/g, (digit) => '0123456789'['۰۱۲۳۴۵۶۷۸۹'.indexOf(digit)]);
+
+        const visitCount = (() => {
+            const storageKey = 'dashVisitCount';
+            const raw = Number.parseInt(localStorage.getItem(storageKey) || '0', 10);
+            const next = Number.isFinite(raw) ? raw + 1 : 1;
+            localStorage.setItem(storageKey, String(next));
+            return next;
+        })();
 
         const numberFormatter = new Intl.NumberFormat('en-US');
 
@@ -1326,7 +1344,8 @@
                 </section>
 
                 <div class="footer">
-                    تم تحديث البيانات آليًا من ملف التقارير الأسبوعي • جميع الأرقام مستخرجة من قاعدة البيانات المصدرية
+                    تم تحديث البيانات آليًا من ملف التقارير الأسبوعي • جميع الأرقام مستخرجة من قاعدة البيانات المصدرية •
+                    <span class="visit-counter">أنت الزائر رقم ${formatNumber(visitCount)}</span>
                 </div>
             `;
 
