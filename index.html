@@ -498,8 +498,27 @@
             return keys;
         };
 
+        const buildWeekOptions = (rows, weekKey) => {
+            if (!weekKey) {
+                return [];
+            }
+            const weeksMap = new Map();
+            rows.forEach(row => {
+                const rawValue = row[weekKey];
+                const value = normalizeText(rawValue);
+                if (!value) {
+                    return;
+                }
+                if (!weeksMap.has(value)) {
+                    weeksMap.set(value, rawValue);
+                }
+            });
+            return Array.from(weeksMap.values());
+        };
+
         const COLUMN_LABELS = {
             sector: 'ALLSVA',
+            week: 'الأسبوع الدراسي',
             serviceType: 'المهمة حسب خطة المشرف التربوي',
             deliveryMode: 'نوع الخدمة9',
             schoolType: 'جميع مدارس الخدمة',
@@ -590,7 +609,7 @@
             return Number.isFinite(numeric) ? numeric : 0;
         };
 
-        const buildSupervisoryIndicators = (rawRows, rawHeaders, selectedSector) => {
+        const buildSupervisoryIndicators = (rawRows, rawHeaders, selectedSector, selectedWeek, weekIndex) => {
             if (!rawRows.length) {
                 return [];
             }
@@ -599,9 +618,18 @@
                 ? rawHeaders.findIndex(header => normalizeText(header) === normalizeText(COLUMN_LABELS.sector))
                 : -1;
 
-            const filteredRawRows = selectedSector === 'الكل' || sectorIndex === -1
-                ? rawRows
-                : rawRows.filter(row => normalizeText(row[sectorIndex]) === normalizeText(selectedSector));
+            const filteredRawRows = rawRows.filter(row => {
+                if (selectedWeek !== 'الكل' && weekIndex !== -1) {
+                    const weekValue = normalizeText(row[weekIndex]);
+                    if (weekValue !== normalizeText(selectedWeek)) {
+                        return false;
+                    }
+                }
+                if (selectedSector !== 'الكل' && sectorIndex !== -1) {
+                    return normalizeText(row[sectorIndex]) === normalizeText(selectedSector);
+                }
+                return true;
+            });
 
             return SUPERVISORY_INDICATORS.map(config => {
                 const baseLabels = config.fixedLabels;
@@ -641,7 +669,11 @@
             });
         };
 
-        const computeSupervisorSummary = (rows, columns, selectedSector) => {
+        const computeSupervisorSummary = (rows, columns, selectedSector, selectedWeek) => {
+            if (selectedWeek !== 'الكل') {
+                return null;
+            }
+
             if (!rows.length || !columns.sector || !columns.total) {
                 return null;
             }
@@ -662,7 +694,11 @@
             }, { total: 0, male: 0, female: 0 });
         };
 
-        const computeSchoolSupportSummary = (rows, columns, selectedSector) => {
+        const computeSchoolSupportSummary = (rows, columns, selectedSector, selectedWeek) => {
+            if (selectedWeek !== 'الكل') {
+                return null;
+            }
+
             if (!rows.length || !columns.sector || !columns.total) {
                 return null;
             }
@@ -690,10 +726,14 @@
             }, { total: 0, male: 0, female: 0 });
         };
 
-        const computeAggregates = (rows, columns, selectedSector, baseData, supervisorRows, supervisorColumns, schoolSupportColumns, rawRows, rawHeaders) => {
-            const filteredRows = selectedSector === 'الكل'
+        const computeAggregates = (rows, columns, selectedSector, selectedWeek, weekOptions, baseData, supervisorRows, supervisorColumns, schoolSupportColumns, rawRows, rawHeaders, rawWeekIndex) => {
+            const weekFilteredRows = selectedWeek === 'الكل' || !columns.week
                 ? rows
-                : rows.filter(row => normalizeText(row[columns.sector]) === normalizeText(selectedSector));
+                : rows.filter(row => normalizeText(row[columns.week]) === normalizeText(selectedWeek));
+
+            const filteredRows = selectedSector === 'الكل' || !columns.sector
+                ? weekFilteredRows
+                : weekFilteredRows.filter(row => normalizeText(row[columns.sector]) === normalizeText(selectedSector));
 
             const countBy = (key) => {
                 const counts = new Map();
@@ -802,14 +842,17 @@
                 .map(([label, value]) => ({ label, value }))
                 .sort((a, b) => b.value - a.value);
 
-            const sectors = Array.from(new Set(rows.map(row => normalizeText(row[columns.sector])).filter(Boolean)))
+            const sectors = Array.from(new Set(weekFilteredRows.map(row => normalizeText(row[columns.sector])).filter(Boolean)))
                 .sort((a, b) => a.localeCompare(b, 'ar'));
 
             const uniqueSchools = collectUnique([columns.assignedSchool, columns.additionalSchool]);
             const uniqueSupervisors = collectUnique([columns.supervisors]);
-            const supervisorSummary = computeSupervisorSummary(supervisorRows, supervisorColumns, selectedSector);
-            const schoolSupportSummary = computeSchoolSupportSummary(supervisorRows, schoolSupportColumns, selectedSector);
-            const supervisoryIndicators = buildSupervisoryIndicators(rawRows, rawHeaders, selectedSector);
+            const supervisorSummary = computeSupervisorSummary(supervisorRows, supervisorColumns, selectedSector, selectedWeek);
+            const schoolSupportSummary = computeSchoolSupportSummary(supervisorRows, schoolSupportColumns, selectedSector, selectedWeek);
+            const supervisoryIndicators = buildSupervisoryIndicators(rawRows, rawHeaders, selectedSector, selectedWeek, rawWeekIndex);
+            const weekLabel = selectedWeek === 'الكل'
+                ? 'جميع الأسابيع'
+                : selectedWeek;
 
             const summary = {
                 totalReports: filteredRows.length,
@@ -824,9 +867,15 @@
 
             return {
                 ...baseData,
+                header: {
+                    ...baseData.header,
+                    week: weekLabel
+                },
                 filters: {
                     sectors,
-                    selectedSector
+                    selectedSector,
+                    weeks: weekOptions,
+                    selectedWeek
                 },
                 summary,
                 schoolClassification: baseData.schoolClassification,
@@ -883,6 +932,7 @@
                 const rawHeaders = rawRows.length ? rawRows[0] : [];
                 const rawDataRows = rawRows.length ? rawRows.slice(1) : [];
                 const columns = resolveColumnKeys(headers, COLUMN_LABELS);
+                const weekOptions = buildWeekOptions(rows, columns.week);
                 const supervisorRows = supervisorSheet ? XLSX.utils.sheet_to_json(supervisorSheet, { defval: '' }) : [];
                 const supervisorHeaders = supervisorRows.length ? Object.keys(supervisorRows[0]) : [];
                 const supervisorColumns = resolveColumnKeys(supervisorHeaders, {
@@ -898,20 +948,29 @@
                         || resolveColumnKey(supervisorHeaders, 'مجموع بنبن-عدد'),
                     female: 'مجموع بنات-عدد'
                 });
+                const rawWeekIndex = rawHeaders.findIndex(header => normalizeText(header) === normalizeText(COLUMN_LABELS.week));
                 const selectedSector = baseData.filters?.selectedSector || 'الكل';
+                const selectedWeek = baseData.filters?.selectedWeek || 'الكل';
+                const normalizedWeekOptions = weekOptions.map(week => normalizeText(week));
+                const resolvedWeek = selectedWeek === 'الكل' || normalizedWeekOptions.includes(normalizeText(selectedWeek))
+                    ? selectedWeek
+                    : (weekOptions[0] || 'الكل');
                 const dashboardData = computeAggregates(
                     rows,
                     columns,
                     selectedSector,
+                    resolvedWeek,
+                    weekOptions,
                     baseData,
                     supervisorRows,
                     supervisorColumns,
                     schoolSupportColumns,
                     rawDataRows,
-                    rawHeaders
+                    rawHeaders,
+                    rawWeekIndex
                 );
 
-                renderDashboard(dashboardData, rows, columns, baseData, supervisorRows, supervisorColumns, schoolSupportColumns, rawDataRows, rawHeaders);
+                renderDashboard(dashboardData, rows, columns, baseData, supervisorRows, supervisorColumns, schoolSupportColumns, rawDataRows, rawHeaders, weekOptions, rawWeekIndex);
             } catch (error) {
                 const fallbackMessage = 'تعذر تحميل البيانات، يرجى تحديث الصفحة أو المحاولة لاحقًا.';
                 const errorMessage = error && error.message ? error.message : fallbackMessage;
@@ -928,7 +987,7 @@
             }
         }
 
-        function renderDashboard(data, rows, columns, baseData, supervisorRows, supervisorColumns, schoolSupportColumns, rawRows, rawHeaders) {
+        function renderDashboard(data, rows, columns, baseData, supervisorRows, supervisorColumns, schoolSupportColumns, rawRows, rawHeaders, weekOptions, rawWeekIndex) {
             const app = document.getElementById('app');
             const summary = data.summary;
             const supervisoryIndicators = data.supervisoryIndicators || [];
@@ -954,6 +1013,9 @@
 
             const sectorOptions = ['الكل', ...data.filters.sectors]
                 .map(option => `<option ${option === data.filters.selectedSector ? 'selected' : ''}>${option}</option>`)
+                .join('');
+            const weekOptionsMarkup = ['الكل', ...data.filters.weeks]
+                .map(option => `<option ${option === data.filters.selectedWeek ? 'selected' : ''}>${option}</option>`)
                 .join('');
 
             app.innerHTML = `
@@ -987,7 +1049,7 @@
                     </div>
                     <div class="filter-card">
                         <label>الأسبوع</label>
-                        <input type="text" value="${normalizeDigits(data.header.week)}" readonly />
+                        <select id="week-select">${weekOptionsMarkup}</select>
                     </div>
                 </div>
 
@@ -1269,23 +1331,32 @@
             `;
 
             const sectorSelect = document.getElementById('sector-select');
-            if (sectorSelect) {
-                sectorSelect.addEventListener('change', (event) => {
-                    const nextSector = event.target.value;
-                    const updatedData = computeAggregates(
-                        rows,
-                        columns,
-                        nextSector,
-                        baseData,
-                        supervisorRows,
-                        supervisorColumns,
-                        schoolSupportColumns,
-                        rawRows,
-                        rawHeaders
-                    );
-                    renderDashboard(updatedData, rows, columns, baseData, supervisorRows, supervisorColumns, schoolSupportColumns, rawRows, rawHeaders);
-                });
+            const weekSelect = document.getElementById('week-select');
+            const handleFilterChange = () => {
+                const nextSector = sectorSelect ? sectorSelect.value : 'الكل';
+                const nextWeek = weekSelect ? weekSelect.value : 'الكل';
+                const updatedData = computeAggregates(
+                    rows,
+                    columns,
+                    nextSector,
+                    nextWeek,
+                    weekOptions,
+                    baseData,
+                    supervisorRows,
+                    supervisorColumns,
+                    schoolSupportColumns,
+                    rawRows,
+                    rawHeaders,
+                    rawWeekIndex
+                );
+                renderDashboard(updatedData, rows, columns, baseData, supervisorRows, supervisorColumns, schoolSupportColumns, rawRows, rawHeaders, weekOptions, rawWeekIndex);
             };
+            if (sectorSelect) {
+                sectorSelect.addEventListener('change', handleFilterChange);
+            }
+            if (weekSelect) {
+                weekSelect.addEventListener('change', handleFilterChange);
+            }
 
             if (defaultIndicatorKey) {
                 setIndicatorDetail(defaultIndicatorKey);
