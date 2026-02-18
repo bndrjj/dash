@@ -507,8 +507,26 @@
             .trim();
 
         const resolveColumnKey = (headers, target) => {
-            const normalizedTarget = normalizeText(target);
-            return headers.find(header => normalizeText(header) === normalizedTarget);
+            const targets = Array.isArray(target) ? target : [target];
+            const normalizedTargets = targets.map(item => normalizeText(item)).filter(Boolean);
+
+            if (!normalizedTargets.length) {
+                return undefined;
+            }
+
+            const exactMatch = headers.find(header => {
+                const normalizedHeader = normalizeText(header);
+                return normalizedTargets.some(targetValue => normalizedHeader === targetValue);
+            });
+
+            if (exactMatch) {
+                return exactMatch;
+            }
+
+            return headers.find(header => {
+                const normalizedHeader = normalizeText(header);
+                return normalizedTargets.some(targetValue => normalizedHeader.includes(targetValue) || targetValue.includes(normalizedHeader));
+            });
         };
 
         const resolveColumnKeys = (headers, targets) => {
@@ -555,7 +573,11 @@
             complianceUniform: 'يلتزم الطلاب بلبس الزي السعودي الرسمي',
             complianceBehavior: 'تطبق المدرسة لائحة السلوك والمواظبة على الطلاب',
             complianceSchedule: 'تتم المحافظة على أوقات الحصص الدراسية',
-            complianceAttendance: 'هل تم تثبيت الغياب بشكل منتظم خلال الاسبوع'
+            complianceAttendance: 'هل تم تثبيت الغياب بشكل منتظم خلال الاسبوع',
+            complianceWeeklyPlan: [
+                'إرسال الخطة الأسبوعية للأسبوع القادم لأولياء أمور الطلبة',
+                'ارسال الخطة الأسبوعية للأسبوع القادم لأولياء أمور الطلبة'
+            ]
         };
 
         const SUPERVISORY_INDICATORS = [
@@ -810,11 +832,12 @@
             });
 
             const complianceFields = [
-                { key: columns.complianceMadrasti, label: 'تفعيل منصة مدرستي' },
-                { key: columns.complianceUniform, label: 'التزام الطلاب بالزي الرسمي' },
-                { key: columns.complianceBehavior, label: 'تطبيق لائحة السلوك والمواظبة' },
-                { key: columns.complianceSchedule, label: 'المحافظة على أوقات الحصص' },
-                { key: columns.complianceAttendance, label: 'تثبيت الغياب في نظام نور' }
+                { key: columns.complianceMadrasti, label: 'تفعيل منصة مدرستي', positiveValue: 'نعم', negativeValue: 'لا', positiveLabel: 'نعم', negativeLabel: 'لا' },
+                { key: columns.complianceUniform, label: 'التزام الطلاب بالزي الرسمي', positiveValue: 'نعم', negativeValue: 'لا', positiveLabel: 'نعم', negativeLabel: 'لا' },
+                { key: columns.complianceBehavior, label: 'تطبيق لائحة السلوك والمواظبة', positiveValue: 'نعم', negativeValue: 'لا', positiveLabel: 'نعم', negativeLabel: 'لا' },
+                { key: columns.complianceSchedule, label: 'المحافظة على أوقات الحصص', positiveValue: 'نعم', negativeValue: 'لا', positiveLabel: 'نعم', negativeLabel: 'لا' },
+                { key: columns.complianceAttendance, label: 'تثبيت الغياب في نظام نور', positiveValue: 'نعم', negativeValue: 'لا', positiveLabel: 'نعم', negativeLabel: 'لا' },
+                { key: columns.complianceWeeklyPlan, label: 'إرسال الخطة الأسبوعية لأولياء الأمور', positiveValue: 'أرسلت', negativeValue: 'لم ترسل', positiveLabel: 'أرسلت', negativeLabel: 'لم ترسل' }
             ];
 
             const compliance = complianceFields.map(field => {
@@ -822,15 +845,22 @@
                 let no = 0;
                 filteredRows.forEach(row => {
                     const value = normalizeText(row[field.key]);
-                    if (value === 'نعم') {
+                    if (value === field.positiveValue) {
                         yes += 1;
-                    } else if (value === 'لا') {
+                    } else if (value === field.negativeValue) {
                         no += 1;
                     }
                 });
                 const total = filteredRows.length;
                 const unknown = Math.max(total - yes - no, 0);
-                return { label: field.label, yes, no, unknown };
+                return {
+                    label: field.label,
+                    yes,
+                    no,
+                    unknown,
+                    positiveLabel: field.positiveLabel,
+                    negativeLabel: field.negativeLabel
+                };
             });
 
             const leadershipCounts = countBy(columns.leadership);
@@ -1216,8 +1246,8 @@
                                         <span>${item.label}</span>
                                     </h4>
                                     <div class="compliance-values">
-                                        <span class="badge yes">نعم ${formatNumber(item.yes)}</span>
-                                        <span class="badge no">لا ${formatNumber(item.no)}</span>
+                                        <span class="badge yes">${item.positiveLabel} ${formatNumber(item.yes)}</span>
+                                        <span class="badge no">${item.negativeLabel} ${formatNumber(item.no)}</span>
                                         <span class="badge unknown">غير محدد ${formatNumber(item.unknown)}</span>
                                     </div>
                                     <div class="progress"><span style="width: ${yesRate}%;"></span></div>
