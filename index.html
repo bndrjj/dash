@@ -246,6 +246,51 @@
             gap: 16px;
         }
 
+        .wide-metric-card {
+            margin-top: 16px;
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 12px 30px var(--shadow);
+        }
+
+        .sector-programs-grid {
+            margin-top: 14px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+        }
+
+        .sector-program-item {
+            padding: 14px 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: linear-gradient(180deg, #f8fbfc 0%, #eef5f6 100%);
+            text-align: center;
+        }
+
+        .sector-program-item .sector-name {
+            font-size: 0.92rem;
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .sector-program-item .sector-value {
+            font-size: 1.6rem;
+            color: var(--secondary);
+            font-family: 'Cairo', sans-serif;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .sector-program-item .sector-caption {
+            margin-top: 6px;
+            font-size: 0.78rem;
+            color: var(--muted);
+        }
+
         .card {
             background: var(--card);
             border-radius: 16px;
@@ -577,7 +622,8 @@
             complianceWeeklyPlan: [
                 'إرسال الخطة الأسبوعية للأسبوع القادم لأولياء أمور الطلبة',
                 'ارسال الخطة الأسبوعية للأسبوع القادم لأولياء أمور الطلبة'
-            ]
+            ],
+            improvementPrograms: 'عدد برامج الأنشطة التحسينية في خطة التنفيذ - استمارة ٢ - خلال الاسبوع'
         };
 
         const SUPERVISORY_INDICATORS = [
@@ -893,6 +939,22 @@
                 .map(([label, value]) => ({ label, value }))
                 .sort((a, b) => b.value - a.value);
 
+            const improvementProgramsBySectorMap = new Map();
+            weekFilteredRows.forEach(row => {
+                const sectorLabel = normalizeText(row[columns.sector]);
+                if (!sectorLabel) {
+                    return;
+                }
+                const value = parseNumber(row[columns.improvementPrograms]);
+                improvementProgramsBySectorMap.set(
+                    sectorLabel,
+                    (improvementProgramsBySectorMap.get(sectorLabel) || 0) + value
+                );
+            });
+            const improvementProgramsBySector = Array.from(improvementProgramsBySectorMap.entries())
+                .map(([sector, value]) => ({ sector, value }))
+                .sort((a, b) => b.value - a.value || a.sector.localeCompare(b.sector, 'ar'));
+
             const sectors = Array.from(new Set(weekFilteredRows.map(row => normalizeText(row[columns.sector])).filter(Boolean)))
                 .sort((a, b) => a.localeCompare(b, 'ar'));
 
@@ -957,7 +1019,8 @@
                     value: supportFieldTotals.get(normalizeText(item.label)) || 0
                 })),
                 sectorDistribution,
-                supervisoryIndicators
+                supervisoryIndicators,
+                improvementProgramsBySector
             };
         };
 
@@ -1216,6 +1279,28 @@
                                     </div>
                                 `).join('')}
                             </div>
+                        </div>
+                    </div>
+                    <div class="wide-metric-card">
+                        <h4>
+                            <svg class="title-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M4 18h16"></path>
+                                <path d="M6 18V9"></path>
+                                <path d="M12 18V5"></path>
+                                <path d="M18 18v-7"></path>
+                            </svg>
+                            <span>عدد برامج الأنشطة التحسينية في خطة التنفيذ - استمارة ٢ - خلال الأسبوع</span>
+                        </h4>
+                        <div class="sector-programs-grid">
+                            ${data.improvementProgramsBySector.length
+                                ? data.improvementProgramsBySector.map(item => `
+                                    <div class="sector-program-item">
+                                        <div class="sector-name">${item.sector}</div>
+                                        <div class="sector-value">${formatNumber(item.value)}</div>
+                                        <div class="sector-caption">عدد البرامج</div>
+                                    </div>
+                                `).join('')
+                                : '<div class="metric-row"><span>لا توجد بيانات متاحة</span><strong>0</strong></div>'}
                         </div>
                     </div>
                 </section>
