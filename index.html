@@ -484,15 +484,18 @@
 
         const defaultIndicatorKey = null;
 
-        const buildBarList = (items) => {
+        const buildBarList = (items, showPercentage = false) => {
             const max = items.length ? Math.max(...items.map(item => item.value)) : 0;
+            const total = showPercentage ? items.reduce((sum, item) => sum + item.value, 0) : 0;
             return items.map(item => {
                 const width = max ? (item.value / max) * 100 : 0;
+                const pct = showPercentage && total ? ((item.value / total) * 100).toFixed(2) : '';
+                const valueDisplay = showPercentage ? `${formatNumber(item.value)} ${pct}%` : formatNumber(item.value);
                 return `
                     <div class="bar-row">
                         <span>${item.label}</span>
                         <div class="bar-track"><span style="width: ${width}%;"></span></div>
-                        <strong>${formatNumber(item.value)}</strong>
+                        <strong>${valueDisplay}</strong>
                     </div>
                 `;
             }).join('');
@@ -1303,7 +1306,7 @@
                                 <span>مجالات الدعم المنفذة</span>
                             </h4>
                             <div class="bar-list">
-                                ${buildBarList(data.supportFields)}
+                                ${buildBarList(data.supportFields, true)}
                             </div>
                         </div>
                     </div>
