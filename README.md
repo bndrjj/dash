@@ -164,36 +164,6 @@ python -m http.server 8000
   "description": "تم إطلاق النسخة الجديدة بميزات متقدمة"
 }
 ```
-
----
-
-## 🔧 استكشاف الأخطاء
-
-### مشكلة: لا تظهر البيانات
-
-**الحل:**
-- تأكد من وجود ملف `data.json` في نفس مجلد `index.html`
-- استخدم خادم محلي بدلاً من فتح الملف مباشرة
-- تحقق من صحة بنية JSON (استخدم أدوات مثل [JSONLint](https://jsonlint.com))
-
-### مشكلة: رسالة "خطأ في تحميل البيانات"
-
-**الحل:**
-```bash
-# استخدم خادم محلي
-python -m http.server 8000
-# أو
-npx http-server
-# أو
-php -S localhost:8000
-```
-
-### مشكلة: الألوان لا تظهر بشكل صحيح
-
-**الحل:**
-- تأكد من استخدام القيم الصحيحة: `default`, `accent-2`, `accent-3`, `accent-4`
-- الألوان حساسة لحالة الأحرف (case-sensitive)
-
 ---
 
 ## 🌟 المميزات الرئيسية
@@ -244,22 +214,19 @@ php -S localhost:8000
 
 إذا كان لديك أي استفسار أو مشكلة:
 
-- 📧 البريد الإلكتروني: support@example.com
+- 📧 البريد الإلكتروني: 
 - 🐛 الإبلاغ عن مشاكل: [GitHub Issues](https://github.com/bndrjj/dash/issues)
 - 💬 المناقشات: [GitHub Discussions](https://github.com/bndrjj/dash/discussions)
 
 ---
 
-## 📄 الترخيص
-
-هذا المشروع مفتوح المصدر ومتاح للاستخدام الحر.
+.
 
 ---
 
 ## 🙏 شكر وتقدير
 
 - شكر خاص لـ [Google Fonts](https://fonts.google.com) لتوفير الخطوط العربية
-- تم التطوير بواسطة Claude
 
 ---
 
