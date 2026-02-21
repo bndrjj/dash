@@ -940,7 +940,7 @@
                 .sort((a, b) => b.value - a.value);
 
             const improvementProgramsBySectorMap = new Map();
-            weekFilteredRows.forEach(row => {
+            filteredRows.forEach(row => {
                 const sectorLabel = normalizeText(row[columns.sector]);
                 if (!sectorLabel) {
                     return;
